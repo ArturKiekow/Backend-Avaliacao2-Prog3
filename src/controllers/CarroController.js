@@ -52,8 +52,8 @@ class CarroController {
 
         const { marca, modelo, ano, placa, disponivel } = req.body;
 
-        if (await verificaSePlacaExiste(placa)){
-            return res.json({error: "Já existe um carro com esta placa cadastrado"});
+        if (await verificaSePlacaJaExiste(placa)){
+            return res.status(400).json({error: "Já existe um carro com esta placa cadastrado"});
         }
 
         const carro = await Carro.create({
@@ -92,8 +92,8 @@ class CarroController {
          
         const { marca, modelo, ano, placa, disponivel } = req.body;
 
-        if (await verificaSePlacaExiste(placa)){
-            return res.json({error: "Já existe um carro com esta placa cadastrado"});
+        if (await verificaSePlacaJaExiste(placa)){
+            return res.status(400).json({error: "Já existe um carro com esta placa cadastrado"});
         }
 
         if (marca !== undefined) dados.marca = marca;
@@ -129,7 +129,7 @@ class CarroController {
     }
 }
 
-async function verificaSePlacaExiste(placa) {
+async function verificaSePlacaJaExiste(placa) {
         let carro = await Carro.findAll({
             where: {placa},
         });        

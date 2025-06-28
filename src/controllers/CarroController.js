@@ -6,8 +6,8 @@ class CarroController {
         let carros = await Carro.findAll({
             attributes: [
                 'id',
-                'modelo',
                 'marca',
+                'modelo',
                 'ano',
                 'placa',
                 'disponivel',
@@ -21,8 +21,8 @@ class CarroController {
         const carro = await Carro.findByPk(carroId, {
             attributes: [
                 'id',
-                'modelo',
                 'marca',
+                'modelo',
                 'ano',
                 'placa',
                 'disponivel',
@@ -84,22 +84,27 @@ class CarroController {
             disponivel: Yup.boolean().notRequired(),
         });
 
-        if (!(await schema.isValid(req.body))) {
-            return res.status(400).json({error: "Schema is not valid."});
-        }
+        const data = await schema.validate(req.body, {
+            stripUnknown: true,
+            abortEarly: false,
+        });
+
+        req.body = data;
         
-        let dados = {};
-         
         const { marca, modelo, ano, placa, disponivel } = req.body;
 
-        if (await verificaSePlacaJaExiste(placa)){
-            return res.status(400).json({error: "Já existe um carro com esta placa cadastrado"});
-        }
+        let dados = {};
+
 
         if (marca !== undefined) dados.marca = marca;
         if (modelo !== undefined) dados.modelo = modelo;
         if (ano !== undefined) dados.ano = ano;
-        if (placa !== undefined) dados.placa = placa;
+        if (placa !== undefined) {
+            if (await verificaSePlacaJaExiste(placa)){
+                return res.status(400).json({error: "Já existe um carro com esta placa cadastrado"});
+            }
+            dados.placa = placa;
+        }
         if (disponivel !== undefined) dados.disponivel = disponivel;
 
 

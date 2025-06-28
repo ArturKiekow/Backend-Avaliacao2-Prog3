@@ -8,7 +8,7 @@ const databaseConfig = {
     timestamps: true,
     underscored: false,
     underscoredAll: false,
-    freezeTableName: false,
+    freezeTableName: true,
   },
 };
 

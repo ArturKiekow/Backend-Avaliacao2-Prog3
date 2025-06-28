@@ -12,6 +12,7 @@ class Carro extends Model {
         },
         {
           sequelize,
+          tableName: "carros",
         }
     );
     return this;

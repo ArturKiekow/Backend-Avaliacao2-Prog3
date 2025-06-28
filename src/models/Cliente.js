@@ -12,6 +12,7 @@ class Cliente extends Model {
       },
       {
         sequelize,
+        tableName: "clientes",
       }
     );
     return this;

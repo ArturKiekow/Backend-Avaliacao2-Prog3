@@ -10,13 +10,14 @@ class Locacao extends Model {
         },
         {
             sequelize,
+            tableName: "locacoes",
         }
     );
     return this;
   }
     static associate(models) {
-        this.belongsTo(models.Cliente, { foreignKey: "clienteId", as: "cliente" });
-        this.belongsTo(models.Carro, { foreignKey: "carroId", as: "carro" });
+        this.belongsTo(models.Cliente, { foreignKey: "cliente_id", as: "cliente" });
+        this.belongsTo(models.Carro, { foreignKey: "carro_id", as: "carro" });
     }
 }
 

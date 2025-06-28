@@ -1,5 +1,6 @@
 import * as Yup from "yup";
 import Carro from "../models/Carro.js";
+import Locacao from "../models/Locacao.js";
 
 class CarroController {
     async index(req, res) {
@@ -122,6 +123,14 @@ class CarroController {
 
         if (carro === null){
             return res.status(400).json({error: "Não existe carro com este id"});
+        }
+
+        const locacoes = await Locacao.findAll({
+            where: {carro_id: carroId},
+        });
+
+        if (locacoes.length > 0){
+            return res.status(400).json({error: `Você não pode excluir um carro que tenha uma locação`});
         }
 
         await Carro.destroy(

@@ -1,5 +1,6 @@
 import * as Yup from "yup";
 import Cliente from "../models/Cliente.js"
+import Locacao from "../models/Locacao.js";
 
 class ClienteController {
 
@@ -114,6 +115,14 @@ class ClienteController {
         const cliente = await Cliente.findByPk(clienteId);
         if (cliente === null){
             return res.status(400).json({error: `Não existe cliente com o id:${clienteId}`});
+        }
+
+        const locacoes = await Locacao.findAll({
+            where: {cliente_id: clienteId},
+        });
+
+        if (locacoes.length > 0){
+            return res.status(400).json({error: `Você não pode excluir um cliente que tenha uma locação`});
         }
 
         await Cliente.destroy({

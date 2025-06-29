@@ -12,11 +12,11 @@ module.exports = {
       },
       data_inicio: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATEONLY
       },
       data_fim: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATEONLY
       },
       valor_total: {
         type: Sequelize.DECIMAL,

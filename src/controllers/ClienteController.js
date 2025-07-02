@@ -47,11 +47,15 @@ class ClienteController {
             telefone: Yup.string().required(),
             email: Yup.string().required(),
         });
-
-        const data = await schema.validate(req.body, {
+        let data;
+        try {
+            data = await schema.validate(req.body, {
             stripUnknown: true,
             abortEarly: false,
-        })
+            })
+        } catch (error) {
+            return res.status(400).json({error: error.message})
+        }
         
         const { nome, cpf, telefone, email } = data;
           
@@ -70,7 +74,7 @@ class ClienteController {
             email,
         });
 
-        return res.json(cliente);
+        return res.status(201).json(cliente);
     }
 
     async update(req, res) {
@@ -80,16 +84,21 @@ class ClienteController {
             telefone: Yup.string().notRequired(),
             email: Yup.string().notRequired(),
         });
-
-        const data = await schema.validate(req.body, {
+        let data;
+        try {
+            data = await schema.validate(req.body, {
             stripUnknown: true,
             abortEarly: false,
-        });
+            });
+        } catch (error) {
+            return res.status(400).json({error: error.message})
+        }
 
         const clienteId = req.params.id;
 
-        const clienteBd = Cliente.findByPk(clienteId);
-
+        const clienteBd = await Cliente.findByPk(clienteId);
+        console.log(clienteBd);
+        
         if (clienteBd === null) {
             return res.status(400).json({error: "Não existe cliente com este id"})
         }
@@ -106,7 +115,7 @@ class ClienteController {
             where: {id : clienteId},
         });
 
-        return res.send();       
+        return res.status(204).json();       
     }
 
     async destroy(req, res) {
@@ -129,7 +138,7 @@ class ClienteController {
             where: {id : clienteId},
         });
         
-        return res.send();
+        return res.status(204).json();
     }
 
 }

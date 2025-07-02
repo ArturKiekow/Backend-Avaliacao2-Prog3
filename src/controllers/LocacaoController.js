@@ -83,10 +83,15 @@ class LocacaoController {
             valor_total: Yup.number().required().positive(),
         });
 
-        const data = await schema.validate(req.body, {
+        let data;
+        try {
+            data = await schema.validate(req.body, {
             stripUnknown: true,
             abortEarly: false,
-        });
+            });
+        } catch (error) {
+            return res.status(400).json({error: error.message})
+        }
 
         const { cliente_id, carro_id, data_inicio, data_fim, valor_total } = data;
 
@@ -133,10 +138,15 @@ class LocacaoController {
             valor_total: Yup.number().notRequired().positive(),
         });
 
-        const data = await schema.validate(req.body, {
+        let data;
+        try {
+            data = await schema.validate(req.body, {
             stripUnknown: true,
             abortEarly: false,
-        });
+            });
+        } catch (error) {
+            return res.status(400).json({error: error.message})
+        }
 
         const { cliente_id, carro_id, data_inicio, data_fim, valor_total } = data;        
         
@@ -189,8 +199,15 @@ class LocacaoController {
             where: {id: locacaoId},
         });
 
-        return res.send();
-        
+        await Carro.update({disponivel: true}, {
+            where: {id: locacao.carro_id},
+        })  
+
+        await Carro.update({disponivel: false}, {
+            where: {id: carro_id},
+        });        
+
+        return res.status(204).json();
     }
 
     async destroy(req, res) {
@@ -210,7 +227,7 @@ class LocacaoController {
             where: {id : locacaoId},
         });
 
-        return res.send();
+        return res.status(204).json();
     }
 
 

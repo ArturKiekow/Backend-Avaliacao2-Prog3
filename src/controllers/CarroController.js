@@ -46,12 +46,18 @@ class CarroController {
             placa: Yup.string().required().length(8),
             disponivel: Yup.boolean().required(),
         });
-
-        if (!(await schema.isValid(req.body))) {
-            return res.status(400).json({error: "Schema is not valid."});
+        
+        let data;
+        try {
+            data = await schema.validate(req.body, {
+            stripUnknown: true,
+            abortEarly: false,
+            });
+        } catch (error) {
+            return res.status(400).json({error: error.message})
         }
 
-        const { marca, modelo, ano, placa, disponivel } = req.body;
+        const { marca, modelo, ano, placa, disponivel } = data;
 
         if (await verificaSePlacaJaExiste(placa)){
             return res.status(400).json({error: "Já existe um carro com esta placa cadastrado"});
@@ -65,18 +71,10 @@ class CarroController {
             disponivel,
         });
 
-        return res.json(carro);
+        return res.status(201).json(carro);
     }
 
     async update(req, res) {
-        const carroId = req.params.id;
-
-        const carro = await Carro.findByPk(carroId);
-        
-        if (carro === null){
-            return res.status(400).json({error: "Não existe carro com este id"});
-        }
-
         const schema = Yup.object().shape({
             marca: Yup.string().notRequired(),
             modelo: Yup.string().notRequired(),
@@ -85,35 +83,56 @@ class CarroController {
             disponivel: Yup.boolean().notRequired(),
         });
 
-        const data = await schema.validate(req.body, {
+        let data;
+        try {
+            data = await schema.validate(req.body, {
             stripUnknown: true,
             abortEarly: false,
-        });
-
-        req.body = data;
+            });
+        } catch (error) {
+            return res.status(400).json({error: error.message})
+        }
         
-        const { marca, modelo, ano, placa, disponivel } = req.body;
+        const { marca, modelo, ano, placa, disponivel } = data;
 
         let dados = {};
 
+        const carroId = req.params.id;
+
+        const carro = await Carro.findByPk(carroId);
+        
+        if (carro === null){
+            return res.status(400).json({error: "Não existe carro com este id"});
+        }
 
         if (marca !== undefined) dados.marca = marca;
         if (modelo !== undefined) dados.modelo = modelo;
         if (ano !== undefined) dados.ano = ano;
-        if (placa !== undefined) {
+        if (placa !== undefined && placa !== carro.placa) {
             if (await verificaSePlacaJaExiste(placa)){
                 return res.status(400).json({error: "Já existe um carro com esta placa cadastrado"});
             }
             dados.placa = placa;
         }
-        if (disponivel !== undefined) dados.disponivel = disponivel;
+        if (disponivel !== undefined) {
+            const anyLocacao = await Locacao.findOne({
+                where: {carro_id: carroId},
+            });
+            console.log(anyLocacao);
+            
+            if (anyLocacao !== null) {
+                return res.status(400).json({error: "Você não pode atualizar a disponibilidade de um carro locado"});
+            }
+
+            dados.disponivel = disponivel;
+        }
 
 
         await Carro.update(dados, {
             where: {id : carroId}
         })
 
-        return res.send();
+        return res.status(204).json();
     }
 
     async destroy(req, res) {
@@ -139,7 +158,7 @@ class CarroController {
             }
         );
 
-        return res.send();
+        return res.status(204).json();
     }
 }
 

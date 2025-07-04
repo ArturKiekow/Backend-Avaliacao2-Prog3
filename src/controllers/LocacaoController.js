@@ -76,11 +76,11 @@ class LocacaoController {
     async store(req, res) {
         
         const schema = Yup.object().shape({
-            cliente_id: Yup.number().required(),
-            carro_id: Yup.number().required(),
-            data_inicio: Yup.date().required(),
-            data_fim: Yup.date().required(),
-            valor_total: Yup.number().required().positive(),
+            cliente_id: Yup.number().required("O cliente é obrigatório"),
+            carro_id: Yup.number().required("O carro é obrigatório"),
+            data_inicio: Yup.date().required("A data de início é obrigatório"),
+            data_fim: Yup.date().required("A data de fim é obrigatório"),
+            valor_total: Yup.number().required("O valor total é obrigatório").positive("O valor total deve ser positivo"),
         });
 
         let data;
@@ -135,7 +135,7 @@ class LocacaoController {
             carro_id: Yup.number().notRequired(),
             data_inicio: Yup.date().notRequired(),
             data_fim: Yup.date().notRequired(),
-            valor_total: Yup.number().notRequired().positive(),
+            valor_total: Yup.number().notRequired().positive("O valor total deve ser positivo"),
         });
 
         let data;

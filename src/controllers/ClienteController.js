@@ -42,10 +42,10 @@ class ClienteController {
     async store(req, res) {
         
         const schema = Yup.object().shape({
-            nome: Yup.string().required(),
-            cpf: Yup.string().required(),
-            telefone: Yup.string().required(),
-            email: Yup.string().required(),
+            nome: Yup.string().trim().required("O nome é obrigatório"),
+            cpf: Yup.string().trim().required("O CPF é obrigatório").length(11, "O CPF deve ter 11 dígitos"),
+            telefone: Yup.string().trim().required("O telefone é obrigatório"),
+            email: Yup.string().trim().required("O email é obrigatório"),
         });
         let data;
         try {
@@ -80,9 +80,9 @@ class ClienteController {
     async update(req, res) {
 
         const schema = Yup.object().shape({
-            nome: Yup.string().notRequired(),
-            telefone: Yup.string().notRequired(),
-            email: Yup.string().notRequired(),
+            nome: Yup.string().transform(value => (value === "" ? undefined : value)).notRequired(),
+            telefone: Yup.string().transform(value => (value === "" ? undefined : value)).notRequired(),
+            email: Yup.string().transform(value => (value === "" ? undefined : value)).notRequired(),
         });
         let data;
         try {
@@ -107,9 +107,14 @@ class ClienteController {
 
         let dados = {};
 
-        if (nome !== undefined) dados.nome = nome;
+        if (nome !== undefined && nome !== null) dados.nome = nome;
         if (telefone !== undefined) dados.telefone = telefone;
-        if (email !== undefined) dados.email = email;
+        if (email !== undefined) {
+            if (await verificaSeEmailJaExiste(email) && email !== clienteBd.email){
+                return res.status(400).json({error: "Já existe um cliente com este Email cadastrado"})
+            }
+            dados.email = email;
+        }
 
         await Cliente.update(dados, {
             where: {id : clienteId},

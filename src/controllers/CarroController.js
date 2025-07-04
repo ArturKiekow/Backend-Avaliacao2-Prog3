@@ -40,11 +40,11 @@ class CarroController {
     async store(req, res) {
        
         const schema = Yup.object().shape({
-            marca: Yup.string().required(),
-            modelo: Yup.string().required(),
-            ano: Yup.number().required().positive(),
-            placa: Yup.string().required().length(8),
-            disponivel: Yup.boolean().required(),
+            marca: Yup.string().required("A marca é obrigatório"),
+            modelo: Yup.string().required("O modelo é obrigatório"),
+            ano: Yup.number().required("O ano é obrigatório").positive(),
+            placa: Yup.string().required("A placa é obrigatório").length(8, "A placa deve ter 8 caracteres"),
+            disponivel: Yup.boolean().required("A disponibilidade é obrigatória"),
         });
         
         let data;
@@ -76,10 +76,10 @@ class CarroController {
 
     async update(req, res) {
         const schema = Yup.object().shape({
-            marca: Yup.string().notRequired(),
-            modelo: Yup.string().notRequired(),
+            marca: Yup.string().transform(value => (value === "" ? undefined : value)).notRequired(),
+            modelo: Yup.string().transform(value => (value === "" ? undefined : value)).notRequired(),
             ano: Yup.number().notRequired().positive(),
-            placa: Yup.string().notRequired().length(8),
+            placa: Yup.string().transform(value => (value === "" ? undefined : value)).notRequired().length(8, "A placa deve ter 8 caracteres"),
             disponivel: Yup.boolean().notRequired(),
         });
 
